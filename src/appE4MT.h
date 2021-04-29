@@ -67,7 +67,10 @@ private:
     void processFile(const QString &_inputFile, const QString& _outFile);
     QStringList retrieveFileItems(const QString& _filePath);
     std::tuple<bool, QString> text2Ixml_Helper(const QVariantList &_temovalItems,
-                            bool _useSpellCorrector, QString _language, QString _text);
+                            bool _useSpellCorrector, QString _language, QString _text,
+                            bool _putXmlTagsInSeperateList,
+                            QStringList* _lstXmlTags,
+                            bool _setTagValue);
 
 private:
     QScopedPointer<clsFormalityChecker> FormalityChecker;

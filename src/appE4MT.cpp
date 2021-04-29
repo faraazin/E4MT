@@ -78,7 +78,10 @@ void appE4MT::slotExecute()
                                    false,
                                    (gConfigs::NoSpellcorrector.value() ? false : true),
                                    QList<enuTextTags::Type>(),
-                                   SentenceBreakReplacements
+                                   SentenceBreakReplacements,
+                                   false,
+                                   NULL,
+                                   gConfigs::Text2IXML::SetTagValue.value()
                                    ).toUtf8().constData()<<std::endl;
                     break;
                 case enuAppMode::IXML2Text:
@@ -92,7 +95,10 @@ void appE4MT::slotExecute()
                                    QVariantList(),
                                    (gConfigs::NoSpellcorrector.value() ? false : true),
                                    gConfigs::Language.value(),
-                                   gConfigs::Input.value()
+                                   gConfigs::Input.value(),
+                                   false,
+                                   NULL,
+                                   gConfigs::Text2IXML::SetTagValue.value()
                                    ));
                     std::cout<<FormalityChecker->check(gConfigs::Language.value(), Normalized).toUtf8().constData()
                              << "\t"
@@ -165,7 +171,10 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const Q
                 _args.value("rem").toList(),
                 _args.value("spell",false).toBool(),
                 Lang,
-                _args.value("txt").toString());
+                _args.value("txt").toString(),
+                false,
+                NULL,
+                true);
 
 
     QVariantMap Args;
@@ -177,7 +186,10 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const Q
 std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removalItems,
                                bool _useSpellCorrector,
                                QString _language,
-                               QString _text)
+                               QString _text,
+                               bool _putXmlTagsInSeperateList,
+                               QStringList* _lstXmlTags,
+                               bool _setTagValue)
 {
     if (_text.isEmpty())
         throw exAppE4MT("Invalid empty text");
@@ -197,7 +209,10 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                                        false,
                                                        _useSpellCorrector,
                                                        RemovingTags,
-                                                       SentenceBreakReplacements);
+                                                       SentenceBreakReplacements,
+                                                       _putXmlTagsInSeperateList,
+                                                       _lstXmlTags,
+                                                       _setTagValue);
 
     return std::make_tuple(WasSpellCorrected, _text);
 }
@@ -206,15 +221,24 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
 {
     QString Text;
     bool WasSpellCorrected;
+    QStringList* LstXmlTags = new QStringList();
+
+    bool Tags = _args.value("tags",false).toBool();
 
     std::tie(WasSpellCorrected, Text) = this->text2Ixml_Helper(
                 _args.value("rem").toList(),
                 _args.value("spell",false).toBool(),
                 _args.value("lang").toString(),
-                _args.value("txt").toString());
+                _args.value("txt").toString(),
+                Tags,
+                LstXmlTags,
+                !Tags
+                );
 
     QVariantMap Args;
     Args.insert("spell",WasSpellCorrected);
+    if(Tags)
+        Args.insert("tags",*LstXmlTags);
     return stuRPCOutput(Text, Args);
 }
 
@@ -317,7 +341,10 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
                            false,
                            (gConfigs::NoSpellcorrector.value() ? false : true),
                            QList<enuTextTags::Type>(),
-                           SentenceBreakReplacements
+                           SentenceBreakReplacements,
+                           false,
+                           NULL,
+                           gConfigs::Text2IXML::SetTagValue.value()
                            )<<"\n";
         break;
     case enuAppMode::IXML2Text:

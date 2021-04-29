@@ -78,6 +78,10 @@ public:
     static Common::Configuration::tmplConfigurable<bool>                NoSpellcorrector;
     static Common::Configuration::tmplConfigurable<bool>                Recursive;
     static Common::Configuration::tmplConfigurable<bool>                BreakLines;
+    struct Text2IXML
+    {
+        static Common::Configuration::tmplConfigurable<bool>            SetTagValue;            
+    };
 };
 
 }

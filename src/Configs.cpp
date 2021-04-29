@@ -257,6 +257,19 @@ tmplConfigurable<FilePath_t>     gConfigs::DTDFilePath(
             enuConfigSource::Arg  |
             enuConfigSource::File);
 
+tmplConfigurable<bool>     gConfigs::Text2IXML::SetTagValue(
+        gConfigs::appConfig("IXMLTagValue"),
+        "Set tag values or not in Text2IXML converter",
+        true,
+        ReturnTrueCrossValidator(),
+        "g",
+        "",
+        "ixml-tagvalue",
+            enuConfigSource::Arg  |
+            enuConfigSource::File);
+
 }}
+
+
 /**************************************************************************************************************/
 ENUM_CONFIGURABLE_IMPL(Targoman::Apps::enuAppMode)
