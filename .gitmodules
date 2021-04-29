@@ -6,4 +6,4 @@
 	url = https://github.com/Targoman/QBuildSystem.git
 [submodule "3rdParty/TextProcessor"]
 	path = 3rdParty/TextProcessor
-	url = https://github.com/Targoman/TextProcessor.git
+	url = https://github.com/faraazin/TextProcessor.git
