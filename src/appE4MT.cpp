@@ -276,7 +276,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVarian
                                                        RemovingTags,
                                                        SentenceBreakReplacements);
 
-    Text = TargomanTextProcessor::instance().ixml2Text(Text);
+    Text = TargomanTextProcessor::instance().ixml2Text(Text,false);
     QVariantMap Args;
     Args.insert("spell",WasSpellCorrected);
     return stuRPCOutput(Text, Args);
