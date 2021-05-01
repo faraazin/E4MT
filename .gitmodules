@@ -7,3 +7,4 @@
 [submodule "3rdParty/TextProcessor"]
 	path = 3rdParty/TextProcessor
 	url = https://github.com/faraazin/TextProcessor.git
+	branch = main
