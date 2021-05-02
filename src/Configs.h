@@ -78,6 +78,7 @@ public:
     static Common::Configuration::tmplConfigurable<bool>                NoSpellcorrector;
     static Common::Configuration::tmplConfigurable<bool>                Recursive;
     static Common::Configuration::tmplConfigurable<bool>                BreakLines;
+    static Common::Configuration::tmplConfigurable<bool>                ConvertToLowerCase;
     struct Text2IXML
     {
         static Common::Configuration::tmplConfigurable<bool>            SetTagValue;            

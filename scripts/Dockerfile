@@ -1,24 +1,32 @@
 FROM alpine:3.7
-LABEL maintainers "S.Mehran M.ziabary <zaiabry@targoman.com>"
+LABEL maintainers "M.Montazery <m.montazery@faraazin.ir>"
 
-WORKDIR /tmp
-RUN apk update && apk upgrade && apk add --no-cache bash sed grep coreutils qt5-qtbase zlib libxml2
-RUN apk add --virtual .build-dependencies --no-cache gcc g++ make qt5-qtbase-dev zlib-dev libxml2-dev curl git \
-    && ln -s /lib/libz.so /usr/lib/ \
-    && git clone -b $(curl -s https://api.github.com/repos/Targoman/E4MT/releases/latest | grep tag_name | cut -d ':' -f 2 | sed 's/[\", ]//g') --recursive --single-branch https://github.com/Targoman/E4MT.git \
-    && cd /tmp/E4MT && bash ./buildAndTest.sh full release /tmp/local \
-    && make install \
-    && mkdir -p /etc/E4MT/FastTextModels \
-    && mv /tmp/local/bin/* /usr/bin \
-    && mv /tmp/local/lib/* /usr/lib \
-    && mv /tmp/local/conf/* /etc/E4MT/ \
-    && rm -rf /tmp/ \
-    && apk del .build-dependencies
+ENV DIRPATH=/usr/E4MT
 
-COPY ./scripts/E4MT.server.conf ./scripts/tsa.ini /etc/E4MT/
+WORKDIR $DIRPATH
 
-VOLUME /etc/E4MT/FastTextModels
+RUN apk update && apk upgrade && apk add --no-cache bash coreutils qt5-qtbase zlib libxml2
+RUN apk add --virtual .build-dependencies --no-cache gcc g++ make cmake qt5-qtbase-dev zlib-dev libxml2-dev git \
+	&& mkdir $DIRPATH/tmp \
+	&& cd $DIRPATH/tmp \
+    && git clone --recursive https://github.com/faraazin/E4MT.git \
+    && cd $DIRPATH/tmp/E4MT \
+    && qmake-qt5 \
+    && make -j \        
+    && mv $DIRPATH/tmp/E4MT/out/* $DIRPATH \
+    && mv $DIRPATH/tmp/E4MT/scripts/E4MT.server.conf $DIRPATH/bin/E4MT.server.conf \
+    && rm -rf $DIRPATH/tmp/ \
+	&& apk del .build-dependencies
+
+RUN echo $'#!/bin/sh \n\
+cd /usr/E4MT/bin \n\
+export LD_LIBRARY_PATH=../lib64 \n\
+./E4MT "-c" "E4MT.server.conf"' \
+>> $DIRPATH/bin/run.sh
+
+RUN ["chmod", "+x", "/usr/E4MT/bin/run.sh"]
 
 EXPOSE 10000
 
-ENTRYPOINT [ "E4MT", "-c","/etc/E4MT/E4MT.server.conf" ]
+ENTRYPOINT ["/usr/E4MT/bin/run.sh"]
+CMD ["sh"]

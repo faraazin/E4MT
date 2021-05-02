@@ -268,7 +268,20 @@ tmplConfigurable<bool>     gConfigs::Text2IXML::SetTagValue(
             enuConfigSource::Arg  |
             enuConfigSource::File);
 
+tmplConfigurable<bool>     gConfigs::ConvertToLowerCase(
+        gConfigs::appConfig("ConvertToLowerCase"),
+        "Convert all letters to lower case",
+        false,
+        ReturnTrueCrossValidator(),
+        "lc",
+        "",
+        "converttolowercase",
+            enuConfigSource::Arg  |
+            enuConfigSource::File);
+
 }}
+
+
 
 
 /**************************************************************************************************************/

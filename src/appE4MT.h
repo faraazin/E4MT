@@ -70,7 +70,8 @@ private:
                             bool _useSpellCorrector, QString _language, QString _text,
                             bool _putXmlTagsInSeperateList,
                             QStringList* _lstXmlTags,
-                            bool _setTagValue);
+                            bool _setTagValue,
+                            bool _convertToLower);
 
 private:
     QScopedPointer<clsFormalityChecker> FormalityChecker;

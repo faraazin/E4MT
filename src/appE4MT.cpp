@@ -81,12 +81,19 @@ void appE4MT::slotExecute()
                                    SentenceBreakReplacements,
                                    false,
                                    NULL,
-                                   gConfigs::Text2IXML::SetTagValue.value()
+                                   gConfigs::Text2IXML::SetTagValue.value(),
+                                   gConfigs::ConvertToLowerCase.value()
                                    ).toUtf8().constData()<<std::endl;
                     break;
                 case enuAppMode::IXML2Text:
                     std::cout<<TargomanTextProcessor::instance().ixml2Text(
-                                   gConfigs::Input.value()).toUtf8().constData()<<std::endl;
+                                   gConfigs::Input.value(),
+                                   true,
+                                   false,
+                                   false,
+                                   false,
+                                   gConfigs::ConvertToLowerCase.value()
+                                   ).toUtf8().constData()<<std::endl;
                     break;
 
                 case enuAppMode::Preprocess:{
@@ -98,7 +105,8 @@ void appE4MT::slotExecute()
                                    gConfigs::Input.value(),
                                    false,
                                    NULL,
-                                   gConfigs::Text2IXML::SetTagValue.value()
+                                   gConfigs::Text2IXML::SetTagValue.value(),
+                                   gConfigs::ConvertToLowerCase.value()
                                    ));
                     std::cout<<FormalityChecker->check(gConfigs::Language.value(), Normalized).toUtf8().constData()
                              << "\t"
@@ -115,13 +123,20 @@ void appE4MT::slotExecute()
                                        (gConfigs::NoSpellcorrector.value() ? false : true),
                                        QList<enuTextTags::Type>(),
                                        SentenceBreakReplacements
-                                       )).toUtf8().constData()<<std::endl;
+                                       )
+                                    ,false
+                                    ,false
+                                    ,false
+                                    ,false
+                                    ,gConfigs::ConvertToLowerCase.value()
+                                ).toUtf8().constData()<<std::endl;
                     break;
                 case enuAppMode::Normalize:
                     std::cout<<TargomanTextProcessor::instance().normalizeText(
                                    gConfigs::Input.value(),
                                    SpellCorrected,
-                                   gConfigs::Language.value()).toUtf8().constData()<<std::endl;
+                                   gConfigs::Language.value(),
+                                   gConfigs::ConvertToLowerCase.value()).toUtf8().constData()<<std::endl;
                     break;
                 default:
                     throw exAppE4MT("Invalid action selected for simple input");
@@ -155,8 +170,10 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcNormalize(const QVaria
     if (Text.isEmpty())
         throw exAppE4MT("Invalid empty text");
 
+    bool ConvertToLower = _args.value("lower",false).toBool();
+
     bool WasSpellCorrected;
-    Text = TargomanTextProcessor::instance().normalizeText(Text, WasSpellCorrected, false, Language);
+    Text = TargomanTextProcessor::instance().normalizeText(Text, WasSpellCorrected, false, Language,ConvertToLower);
     QVariantMap Args;
     Args.insert("spell",WasSpellCorrected);
     return stuRPCOutput(Text, Args);
@@ -165,6 +182,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcNormalize(const QVaria
 Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const QVariantMap &_args){
     QString Text;
     QString Lang = _args.value("lang").toString();
+    bool ConvertToLower = _args.value("lower",false).toBool();
+
     bool WasSpellCorrected;
 
     std::tie(WasSpellCorrected, Text) = this->text2Ixml_Helper(
@@ -174,7 +193,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const Q
                 _args.value("txt").toString(),
                 false,
                 NULL,
-                true);
+                true,
+                ConvertToLower);
 
 
     QVariantMap Args;
@@ -189,7 +209,8 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                QString _text,
                                bool _putXmlTagsInSeperateList,
                                QStringList* _lstXmlTags,
-                               bool _setTagValue)
+                               bool _setTagValue,
+                               bool _convertToLower)
 {
     if (_text.isEmpty())
         throw exAppE4MT("Invalid empty text");
@@ -212,7 +233,8 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                                        SentenceBreakReplacements,
                                                        _putXmlTagsInSeperateList,
                                                        _lstXmlTags,
-                                                       _setTagValue);
+                                                       _setTagValue,
+                                                       _convertToLower);
 
     return std::make_tuple(WasSpellCorrected, _text);
 }
@@ -224,6 +246,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
     QStringList* LstXmlTags = new QStringList();
 
     bool Tags = _args.value("tags",false).toBool();
+    bool ConvertToLower = _args.value("lower",false).toBool();
 
     std::tie(WasSpellCorrected, Text) = this->text2Ixml_Helper(
                 _args.value("rem").toList(),
@@ -232,7 +255,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
                 _args.value("txt").toString(),
                 Tags,
                 LstXmlTags,
-                !Tags
+                !Tags,
+                ConvertToLower
                 );
 
     QVariantMap Args;
@@ -248,7 +272,9 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcIXML2Text(const QVaria
     if (IXML.isEmpty())
         throw exAppE4MT("Invalid empty text");
 
-    return stuRPCOutput(TargomanTextProcessor::instance().ixml2Text(IXML));
+    bool ConvertToLower = _args.value("lower",false).toBool();
+
+    return stuRPCOutput(TargomanTextProcessor::instance().ixml2Text(IXML,false,false,false,false,ConvertToLower));
 }
 
 Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVariantMap &_args)
@@ -256,6 +282,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVarian
     QString Text     = _args.value("txt").toString();
     QString Language = _args.value("lang").toString();
     bool    UseSpellCorrector = _args.value("spell",false).toBool();
+    bool ConvertToLower = _args.value("lower",false).toBool();
     if (Text.isEmpty())
         throw exAppE4MT("Invalid empty text");
     QList<enuTextTags::Type> RemovingTags;
@@ -276,7 +303,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVarian
                                                        RemovingTags,
                                                        SentenceBreakReplacements);
 
-    Text = TargomanTextProcessor::instance().ixml2Text(Text,false);
+    Text = TargomanTextProcessor::instance().ixml2Text(Text,false,false,false,false,ConvertToLower);
     QVariantMap Args;
     Args.insert("spell",WasSpellCorrected);
     return stuRPCOutput(Text, Args);
@@ -344,7 +371,8 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
                            SentenceBreakReplacements,
                            false,
                            NULL,
-                           gConfigs::Text2IXML::SetTagValue.value()
+                           gConfigs::Text2IXML::SetTagValue.value(),
+                           gConfigs::ConvertToLowerCase.value()
                            )<<"\n";
         break;
     case enuAppMode::IXML2Text:
@@ -352,10 +380,11 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
         foreach (const QString& Line, this->retrieveFileItems(_inputFile))
             OutStream<<TargomanTextProcessor::instance().ixml2Text(
                            Line,
-                           "",
                            true,
-                           true,
-                           false)<<"\n";
+                           false,
+                           false,
+                           false,
+                           gConfigs::ConvertToLowerCase.value())<<"\n";
         break;
     case enuAppMode::Tokenize:
         OPEN_OUT_STREAM("tokenized");
@@ -371,10 +400,11 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
                                QList<enuTextTags::Type>(),
                                SentenceBreakReplacements
                                ),
-                           "",
                            false,
                            false,
-                           false)<<"\n";
+                           false,
+                           false,
+                           gConfigs::ConvertToLowerCase.value())<<"\n";
         break;
     case enuAppMode::Normalize:
         OPEN_OUT_STREAM("normalized");
@@ -382,7 +412,8 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
             OutStream<<TargomanTextProcessor::instance().normalizeText(
                            Line,
                            SpellCorrected,
-                           gConfigs::Language.value())<<"\n";
+                           gConfigs::Language.value(),
+                           gConfigs::ConvertToLowerCase.value())<<"\n";
         break;
     default:
         throw exAppE4MT("Invalid action selected for simple input");
