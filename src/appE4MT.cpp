@@ -26,7 +26,6 @@
 #include <sstream>
 
 #include "appE4MT.h"
-#include "libTargomanTextProcessor/TextProcessor.h"
 #include "XMLReader.h"
 #include "Configs.h"
 
@@ -208,7 +207,7 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                QString _language,
                                QString _text,
                                bool _putXmlTagsInSeperateList,
-                               QStringList* _lstXmlTags,
+                               QVariantList* _lstXmlTags,
                                bool _setTagValue,
                                bool _convertToLower)
 {
@@ -243,7 +242,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
 {
     QString Text;
     bool WasSpellCorrected;
-    QStringList* LstXmlTags = new QStringList();
+    QVariantList* LstXmlTags = new QVariantList();
 
     bool Tags = _args.value("tags",false).toBool();
     bool ConvertToLower = _args.value("lower",false).toBool();

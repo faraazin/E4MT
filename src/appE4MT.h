@@ -30,6 +30,9 @@
 #include "libTargomanCommon/Configuration/intfRPCExporter.hpp"
 #include "libTargomanCommon/JSONConversationProtocol.h"
 #include "clsFormalityChecker.h"
+#include "libTargomanTextProcessor/TextProcessor.h"
+
+
 
 namespace Targoman {
 namespace Apps {
@@ -69,7 +72,7 @@ private:
     std::tuple<bool, QString> text2Ixml_Helper(const QVariantList &_temovalItems,
                             bool _useSpellCorrector, QString _language, QString _text,
                             bool _putXmlTagsInSeperateList,
-                            QStringList* _lstXmlTags,
+                            QVariantList* _lstXmlTags,
                             bool _setTagValue,
                             bool _convertToLower);
 
