@@ -4,3 +4,4 @@ out
 Makefile
 *.stash
 *.pro.user
+.vscode
