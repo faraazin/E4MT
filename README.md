@@ -58,7 +58,7 @@ $E4MTBinPath/E4MT -h
 Follow the steps below to compile the project:
 1.  Clone a fresh copy from github:
     ```bash
-    git clone --recursive https://github.com/Targoman/E4MT.git
+    git clone --recursive https://github.com/faraazin/E4MT.git
     ```
 2. Install Qt5, libxml and libz. 
     Assuming a fresh Ubuntu:20.04 installation, following command does the job:
