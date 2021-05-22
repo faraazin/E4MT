@@ -69,20 +69,27 @@ void appE4MT::slotExecute()
                 TargomanTextProcessor::instance().init(ConfigManager::instance().configSettings());
                 switch(gConfigs::Mode.value()){
                 case enuAppMode::Text2IXML:
-                    std::cout<<TargomanTextProcessor::instance().text2IXML(
-                                   gConfigs::Input.value(),
-                                   SpellCorrected,
-                                   gConfigs::Language.value(),
-                                   0,
-                                   false,
-                                   (gConfigs::NoSpellcorrector.value() ? false : true),
-                                   QList<enuTextTags::Type>(),
-                                   SentenceBreakReplacements,
-                                   false,
-                                   NULL,
-                                   gConfigs::Text2IXML::SetTagValue.value(),
-                                   gConfigs::ConvertToLowerCase.value()
-                                   ).toUtf8().constData()<<std::endl;
+                    {
+                        QList<enuTextTags::Type> removingTags;
+                        foreach(const QString& TagVariant, gConfigs::Text2IXML::RemovingTags.value().split(',')){                            
+                            enuTextTags::Type Tag = enuTextTags::toEnum(TagVariant);
+                            removingTags.append(Tag);
+                        }
+                        std::cout<<TargomanTextProcessor::instance().text2IXML(
+                                       gConfigs::Input.value(),
+                                       SpellCorrected,
+                                       gConfigs::Language.value(),
+                                        0,
+                                        false,
+                                        (gConfigs::NoSpellcorrector.value() ? false : true),
+                                        removingTags,
+                                        SentenceBreakReplacements,
+                                        false,
+                                        NULL,
+                                        gConfigs::Text2IXML::SetTagValue.value(),
+                                        gConfigs::ConvertToLowerCase.value()
+                                        ).toUtf8().constData()<<std::endl;
+                    }
                     break;
                 case enuAppMode::IXML2Text:
                     std::cout<<TargomanTextProcessor::instance().ixml2Text(
@@ -357,22 +364,30 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
         XMLReader::isValid(_inputFile);
         break;
     case enuAppMode::Text2IXML:
-        OPEN_OUT_STREAM("ixml");
-        foreach (const QString& Line, this->retrieveFileItems(_inputFile))
-            OutStream<<TargomanTextProcessor::instance().text2IXML(
-                           Line,
-                           SpellCorrected,
-                           gConfigs::Language.value(),
-                           0,
-                           false,
-                           (gConfigs::NoSpellcorrector.value() ? false : true),
-                           QList<enuTextTags::Type>(),
-                           SentenceBreakReplacements,
-                           false,
-                           NULL,
-                           gConfigs::Text2IXML::SetTagValue.value(),
-                           gConfigs::ConvertToLowerCase.value()
-                           )<<"\n";
+        {
+            QList<enuTextTags::Type> removingTags;
+            foreach(const QString& TagVariant, gConfigs::Text2IXML::RemovingTags.value().split(',')){
+                enuTextTags::Type Tag = enuTextTags::toEnum(TagVariant);
+                removingTags.append(Tag);
+            }
+
+            OPEN_OUT_STREAM("ixml");
+            foreach (const QString& Line, this->retrieveFileItems(_inputFile))
+                OutStream<<TargomanTextProcessor::instance().text2IXML(
+                               Line,
+                               SpellCorrected,
+                               gConfigs::Language.value(),
+                                0,
+                                false,
+                                (gConfigs::NoSpellcorrector.value() ? false : true),
+                                removingTags,
+                                SentenceBreakReplacements,
+                                false,
+                                NULL,
+                                gConfigs::Text2IXML::SetTagValue.value(),
+                                gConfigs::ConvertToLowerCase.value()
+                                )<<"\n";
+        }
         break;
     case enuAppMode::IXML2Text:
         OPEN_OUT_STREAM("txt");

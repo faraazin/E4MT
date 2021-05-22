@@ -24,10 +24,12 @@
 
 #include "Configs.h"
 #include "ISO639.h"
+#include "libTargomanTextProcessor/TextProcessor.h"
 
 namespace Targoman {
 namespace Apps {
 
+using namespace NLPLibs;
 using namespace Common;
 using namespace Common::Configuration;
 
@@ -276,6 +278,28 @@ tmplConfigurable<bool>     gConfigs::ConvertToLowerCase(
         "lc",
         "",
         "converttolowercase",
+            enuConfigSource::Arg  |
+            enuConfigSource::File);
+
+tmplConfigurable<QString> gConfigs::Text2IXML::RemovingTags(
+        gConfigs::appConfig("RemovingTags"),
+        "Text2IXML Removing Tags (Number,SpecialNumber,Email,URL,Abbreviation,OrderedListItem,Time,Date,Ordinals,Symbol)",
+        "",
+        [](const Targoman::Common::Configuration::intfConfigurable& _item,QString& _errorMessage){
+            
+            foreach(const QString& TagVariant, _item.toVariant().toString().split(',')){
+                enuTextTags::Type Tag = enuTextTags::toEnum(TagVariant);
+                if (Tag == enuTextTags::Unknown)
+                {
+                    _errorMessage = TagVariant + " tag is not valid";         
+                    return true;
+                }        
+            }
+            return true;
+        },
+        "rt",
+        "REMOVINGTAGS",
+        "removetags",
             enuConfigSource::Arg  |
             enuConfigSource::File);
 

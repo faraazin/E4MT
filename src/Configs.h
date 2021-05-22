@@ -82,6 +82,7 @@ public:
     struct Text2IXML
     {
         static Common::Configuration::tmplConfigurable<bool>            SetTagValue;            
+        static Common::Configuration::tmplConfigurable<QString>            RemovingTags;  
     };
 };
 
