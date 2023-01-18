@@ -281,6 +281,17 @@ tmplConfigurable<bool>     gConfigs::ConvertToLowerCase(
             enuConfigSource::Arg  |
             enuConfigSource::File);
 
+tmplConfigurable<bool>     gConfigs::DetectSymbols(
+        gConfigs::appConfig("DetectSymbols"),
+        "Detect symbols in text2ixml or tokenization",
+        true,
+        ReturnTrueCrossValidator(),
+        "ds",
+        "",
+        "detectsymbols",
+            enuConfigSource::Arg  |
+            enuConfigSource::File);
+
 tmplConfigurable<QString> gConfigs::Text2IXML::RemovingTags(
         gConfigs::appConfig("RemovingTags"),
         "Text2IXML Removing Tags (Number,SpecialNumber,Email,URL,Abbreviation,OrderedListItem,Time,Date,Ordinals,Symbol)",

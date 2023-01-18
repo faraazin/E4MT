@@ -74,7 +74,8 @@ private:
                             bool _putXmlTagsInSeperateList,
                             QVariantList* _lstXmlTags,
                             bool _setTagValue,
-                            bool _convertToLower);
+                            bool _convertToLower,
+                            bool _detectSymbols);
 
 private:
     QScopedPointer<clsFormalityChecker> FormalityChecker;
