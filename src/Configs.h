@@ -82,7 +82,8 @@ public:
     static Common::Configuration::tmplConfigurable<bool>                DetectSymbols;
     struct Text2IXML
     {
-        static Common::Configuration::tmplConfigurable<bool>            SetTagValue;            
+        static Common::Configuration::tmplConfigurable<bool>            SetTagValue;  
+        static Common::Configuration::tmplConfigurable<bool>            SetTagIndex;            
         static Common::Configuration::tmplConfigurable<QString>            RemovingTags;  
     };
 };

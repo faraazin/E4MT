@@ -261,12 +261,23 @@ tmplConfigurable<FilePath_t>     gConfigs::DTDFilePath(
 
 tmplConfigurable<bool>     gConfigs::Text2IXML::SetTagValue(
         gConfigs::appConfig("IXMLTagValue"),
-        "Set tag values or not in Text2IXML converter",
+        "Set tag values in Text2IXML converter or not",
         true,
         ReturnTrueCrossValidator(),
         "g",
         "",
         "ixml-tagvalue",
+            enuConfigSource::Arg  |
+            enuConfigSource::File);
+
+tmplConfigurable<bool>     gConfigs::Text2IXML::SetTagIndex(
+        gConfigs::appConfig("IXMLTagIndex"),
+        "Set tag index in Text2IXML converter or not",
+        false,
+        ReturnTrueCrossValidator(),
+        "ti",
+        "",
+        "ixml-tagindex",
             enuConfigSource::Arg  |
             enuConfigSource::File);
 

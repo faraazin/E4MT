@@ -88,7 +88,8 @@ void appE4MT::slotExecute()
                                         NULL,
                                         gConfigs::Text2IXML::SetTagValue.value(),
                                         gConfigs::ConvertToLowerCase.value(),
-                                        gConfigs::DetectSymbols.value()
+                                        gConfigs::DetectSymbols.value(),
+                                        gConfigs::Text2IXML::SetTagIndex.value()
                                         ).toUtf8().constData()<<std::endl;
                     }
                     break;
@@ -114,7 +115,8 @@ void appE4MT::slotExecute()
                                    NULL,
                                    gConfigs::Text2IXML::SetTagValue.value(),
                                    gConfigs::ConvertToLowerCase.value(),
-                                   gConfigs::DetectSymbols.value()
+                                   gConfigs::DetectSymbols.value(),
+                                   gConfigs::Text2IXML::SetTagIndex.value()
                                    ));
                     std::cout<<FormalityChecker->check(gConfigs::Language.value(), Normalized).toUtf8().constData()
                              << "\t"
@@ -135,7 +137,8 @@ void appE4MT::slotExecute()
                                        NULL,
                                        true,
                                        false,
-                                       gConfigs::DetectSymbols.value()
+                                       gConfigs::DetectSymbols.value(),
+                                       gConfigs::Text2IXML::SetTagIndex.value()
                                        )
                                     ,false
                                     ,false
@@ -197,6 +200,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const Q
     QString Lang = _args.value("lang").toString();
     bool ConvertToLower = _args.value("lower",false).toBool();
     bool DetectSymbols = _args.value("symbols", true).toBool();
+    bool SetTagIndex = _args.value("tagIndex", false).toBool();
 
     bool WasSpellCorrected;
 
@@ -209,7 +213,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcPreprocessText(const Q
                 NULL,
                 true,
                 ConvertToLower,
-                DetectSymbols);
+                DetectSymbols,
+                SetTagIndex);
 
 
     QVariantMap Args;
@@ -226,7 +231,8 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                QVariantList* _lstXmlTags,
                                bool _setTagValue,
                                bool _convertToLower,
-                               bool _detectSymbols)
+                               bool _detectSymbols,
+                               bool _setTagIndex)
 {
     if (_text.isEmpty())
         throw exAppE4MT("Invalid empty text");
@@ -251,7 +257,8 @@ std::tuple<bool, QString> appE4MT::text2Ixml_Helper(const QVariantList &_removal
                                                        _lstXmlTags,
                                                        _setTagValue,
                                                        _convertToLower,
-                                                       _detectSymbols);
+                                                       _detectSymbols,
+                                                       _setTagIndex);
 
     return std::make_tuple(WasSpellCorrected, _text);
 }
@@ -265,6 +272,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
     bool Tags = _args.value("tags",false).toBool();
     bool ConvertToLower = _args.value("lower",false).toBool();
     bool DetectSymbols = _args.value("symbols", true).toBool();
+    bool SetTagIndex = _args.value("tagIndex", false).toBool();
 
     std::tie(WasSpellCorrected, Text) = this->text2Ixml_Helper(
                 _args.value("rem").toList(),
@@ -275,7 +283,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcText2IXML(const QVaria
                 LstXmlTags,
                 !Tags,
                 ConvertToLower,
-                DetectSymbols
+                DetectSymbols,
+                SetTagIndex
                 );
 
     QVariantMap Args;
@@ -303,6 +312,7 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVarian
     bool    UseSpellCorrector = _args.value("spell",false).toBool();
     bool ConvertToLower = _args.value("lower",false).toBool();
     bool DetectSymbols = _args.value("symbols",true).toBool();
+    bool SetTagIndex = _args.value("tagIndex", false).toBool();
     if (Text.isEmpty())
         throw exAppE4MT("Invalid empty text");
     QList<enuTextTags::Type> RemovingTags;
@@ -326,7 +336,8 @@ Targoman::Common::Configuration::stuRPCOutput appE4MT::rpcTokenize(const QVarian
                                                        NULL,
                                                        true,
                                                        ConvertToLower,
-                                                       DetectSymbols);
+                                                       DetectSymbols,
+                                                       SetTagIndex);
 
     Text = TargomanTextProcessor::instance().ixml2Text(Text,false,false,false,false,ConvertToLower);
     QVariantMap Args;
@@ -405,7 +416,8 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
                                 NULL,
                                 gConfigs::Text2IXML::SetTagValue.value(),
                                 gConfigs::ConvertToLowerCase.value(),
-                                gConfigs::DetectSymbols.value()
+                                gConfigs::DetectSymbols.value(),
+                                gConfigs::Text2IXML::SetTagIndex.value()
                                 )<<"\n";
         }
         break;
@@ -437,7 +449,8 @@ void appE4MT::processFile(const QString& _inputFile, const QString &_outFile)
                                NULL,
                                true,
                                gConfigs::ConvertToLowerCase.value(),
-                               gConfigs::DetectSymbols.value()
+                               gConfigs::DetectSymbols.value(),
+                               gConfigs::Text2IXML::SetTagIndex.value()
                                ),
                            false,
                            false,
